@@ -1,13 +1,23 @@
-#include "file_read.hpp"
+#include <iostream>
+#include <fstream>
+#include <vector>
+using namespace std;
 
-int main()
- {
-     Model m1;
-
-     m1.read_file();
-/*
-	fstream fp;
+class Model
+{
+    int A[100][100];
+    int B[100][100];
+    int pi[100];
     vector<float> numbers;
+public:
+    void read_file();
+
+};
+
+void Model::read_file()
+ {
+
+	fstream fp;
     float innum;
 
     fp.open("sample_00.in");
@@ -29,7 +39,4 @@ int main()
     {
         cout << numbers[i] << '\n';
     }
-
-*/
-	return 0;
 }
