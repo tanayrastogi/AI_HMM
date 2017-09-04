@@ -2,34 +2,18 @@
 
 int main()
  {
-     Model m1;
+    Model m1;
 
-     m1.read_file();
-/*
-	fstream fp;
-    vector<float> numbers;
-    float innum;
+    // Read the input file
+    m1.read_file();
+    m1.setA();
+    float *A = m1.getA();
 
-    fp.open("sample_00.in");
-
-    if(fp.is_open())
-    {
-        cout<< "\nThe File is open";
-        while(fp >> innum)
+    cout<<"\nA = ";
+    for(int i=0; i<4; i++)
+        for(int j=0; j<4; j++)
         {
-            cout <<"\nNumbr read";
-            numbers.push_back(innum);
+            cout<<A[i][j]<<" ";
         }
-    }
-    fp.close();
-
-    cout << "\nNumbers:\n";
-
-    for (int i=0; i < numbers.size(); i++)
-    {
-        cout << numbers[i] << '\n';
-    }
-
-*/
-	return 0;
+    return 0;
 }
