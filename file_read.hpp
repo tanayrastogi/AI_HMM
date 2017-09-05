@@ -13,6 +13,9 @@ class Model
     //Variable to find the matrix dimension of A
     int a_row;
     int a_col;
+    //Variable to find the matrix dimension of B
+    int b_row;
+    int b_col;
 
     // Variables for parsing the file
     vector<float> numbers;
@@ -20,7 +23,7 @@ class Model
 public:
     void read_file();
     void setA();
-    float * getA();
+    float **getA();
 
 };
 
@@ -36,11 +39,21 @@ void Model::setA()
     it = numbers.begin() + 1;
     a_col = *it;
 
+//    // Original vector
+//    cout<<"\nOriginal Vector: ";
+//    for(it = numbers.begin(); it!= numbers.end(); ++it)
+//        cout<<*it<<" ;";
+
     //Erase the first two entries
-    numbers.erase(numbers.begin(), numbers.begin()+1);
+    numbers.erase(numbers.begin(), numbers.begin()+2);
 
     // Initialize the iterator for vector back to begin
     it = numbers.begin();
+
+    // To see what number are in vector after deletion
+//    cout<<"\nVector after deletion: ";
+//    for(it = numbers.begin(); it!= numbers.end(); ++it)
+//        cout<<*it<<" ";
 
     for(int i=0; i<a_row; i++)
         for(int j=0; j<a_col; j++)
@@ -49,12 +62,29 @@ void Model::setA()
             ++it;
         }
 
+    // Clear out the vector with values of A
+    numbers.erase(numbers.begin(), numbers.begin()+16);
+
+    // To see what number are in vector after deletion
+//    cout<<"\n\nVector after deletion of A: ";
+//    for(it = numbers.begin(); it!= numbers.end(); ++it)
+//        cout<<*it<<" ;";
 }
 
 // Get the value of transition array
-float * Model::getA()
+float** Model::getA()
 {
-    return A[a_row][a_col];
+    float** array2D = 0;
+    array2D = new float*[a_row];
+
+    for (int i=0; i<a_row; i++)
+    {
+        array2D[i] = new float[a_col];
+        for(int j=0; j<a_col; j++)
+            array2D[i][j] = A[i][j];
+    }
+
+    return array2D;
 }
 
 
@@ -76,10 +106,10 @@ void Model::read_file()
     }
     fp.close();
 
-    cout << "\nNumbers:\n";
-
+    // Just to see what number the vector stored
+    /*cout << "\nNumbers:\n";
     for (unsigned int i=0; i < numbers.size(); i++)
     {
         cout << numbers[i] <<" ";
-    }
+    }*/
 }
