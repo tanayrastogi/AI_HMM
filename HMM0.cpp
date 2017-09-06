@@ -55,14 +55,14 @@ int main()
 
 //    //Probability of next state
     vector< vector<float> > X = matrix_multiply(pi, a);
-    cout<< "\n\nProbability Distribution of Next state :\n\n";
-    for(vector<int>::size_type i = 0; i<X.size(); i++)
-    {
-        for(vector<int>::size_type j = 0; j<X[0].size(); j++)
-            cout<< X[i][j]<< "\t";
-        cout<<"\n";
-
-    }
+//    cout<< "\n\nProbability Distribution of Next state :\n\n";
+//    for(vector<int>::size_type i = 0; i<X.size(); i++)
+//    {
+//        for(vector<int>::size_type j = 0; j<X[0].size(); j++)
+//            cout<< X[i][j]<< "\t";
+//        cout<<"\n";
+//
+//    }
 
     //--------------------------------------------------//
     // Probability of next observation given the current state//
@@ -71,15 +71,22 @@ int main()
 
     //Probability of next state
     vector< vector<float> > Ob = matrix_multiply(X, b);
-    cout<< "\n\nProbability Distribution of Observation :\n\n";
+//    cout<< "\n\nProbability Distribution of Observation :\n\n";
+//    for(vector<int>::size_type i = 0; i<Ob.size(); i++)
+//    {
+//        for(vector<int>::size_type j = 0; j<Ob[0].size(); j++)
+//            cout<< Ob[i][j]<< "\t";
+//        cout<<"\n";
+//
+//    }
+
+    // Print got Kattis
+    cout<<Ob.size()<<" "<<Ob[0].size()<<" ";
     for(vector<int>::size_type i = 0; i<Ob.size(); i++)
     {
         for(vector<int>::size_type j = 0; j<Ob[0].size(); j++)
-            cout<< Ob[i][j]<< "\t";
-        cout<<"\n";
-
+            cout<< Ob[i][j]<<" ";
     }
-
 
     return 0;
 }

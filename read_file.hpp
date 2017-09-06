@@ -11,7 +11,7 @@ vector<float> read_file()
 
     if(fp.is_open())
     {
-        cout<< "\nThe File is open";
+//        cout<< "\nThe File is open";
         while(fp >> innum)
             numbers.push_back(innum);
         fp.close();
