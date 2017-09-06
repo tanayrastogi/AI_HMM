@@ -1,76 +1,25 @@
-#include "Player.hpp"
-#include "Client.hpp"
-#include "GameServer.hpp"
+#include "file_read.hpp"
 
-#include <iostream>
-#include <fstream>
+int main()
+ {
+    HMMmatrix A, B, Pi;
 
-bool gVerbose = false;
+    // Read the input file
+    vector<float> numbers;
+    numbers = read_file();
+    A.setHMMmatrix(numbers);
+    B.setHMMmatrix(numbers);
+    Pi.setHMMmatrix(numbers);
 
-int main(int argc,char **argv)
-{
-    // Parse parameters
-    bool lCreateServer = false;
-    std::string lLoadFilename = "SouthEmissions.in";
 
-    for (int i = 1; i < argc; ++i)
-    {
-        std::string param(argv[i]);
-        if (param == "server" || param == "s")
-        {
-            lCreateServer = true;
-        }
-        else if (param == "verbose" || param == "v")
-        {
-            gVerbose = true;
-        }
-        else if (param == "load" || param == "l")
-        {
-            ++i;
-            if (i < argc)
-                lLoadFilename = argv[i];
-            else
-            {
-                std::cerr << "Observations file must be given as an argument" << std::endl;
-                exit(-1);
-            }
-        }
-        else
-        {
-            std::cerr << "Unknown parameter: '" << argv[i] << "'" << std::endl;
-            exit(-1);
-        }
-    }
+    // Print A matrix
+    //float **A = A.getHMMmatrix();
+    cout<<"\n\nA = \n";
+    A.printHMMmatrix();
+    cout<<"\n\nB = \n";
+    B.printHMMmatrix();
+    cout<<"\n\nPi = \n";
+    Pi.printHMMmatrix();
 
-    /**
-     * Start the program either as a server or a client
-     */
-    if (lCreateServer)
-    {
-        // Create a server
-        ducks::GameServer lGameServer(std::cin, std::cout);
-
-        if (!lLoadFilename.empty())
-        {
-            if (gVerbose)
-                std::cerr << "Loading '" << lLoadFilename << "'" << std::endl;
-            std::ifstream lFile(lLoadFilename);
-            lGameServer.load(lFile);
-        }
-
-        // Run the server
-        lGameServer.run();
-    }
-    else
-    {
-        // Create the player
-        ducks::Player lPlayer;
-
-        // Create a client with the player
-        ducks::Client lClient(lPlayer, std::cin, std::cout);
-
-        // Run the client
-        lClient.run();
-    }
     return 0;
 }
