@@ -72,15 +72,16 @@ int main()
     vector<float> ob_at_seq;
     vector<float> temp;
 
+    alpha = element_matrix_multiply(a,b);
 
     // Alpha 0
-    int pos = seq[0][0];
-   //Observation matrix at 0
-    for(unsigned int i = 0; i<b_col; i++)
-        ob_at_seq.push_back(b[i][pos]);
-
-    temp = element_matrix_multiply(pi[0], ob_at_seq);
-    alpha[0].push_back(temp);
+//    int pos = seq[0][0];
+//   //Observation matrix at 0
+//    for(unsigned int i = 0; i<b_col; i++)
+//        ob_at_seq.push_back(b[i][pos]);
+//
+//    temp = element_matrix_multiply(pi[0], ob_at_seq);
+//    alpha[0].push_back(temp);
 
 
 
