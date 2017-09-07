@@ -54,7 +54,7 @@ int main()
     vector< vector<float> > pi = Pi.getHMMmatrix();
 
 //    //Probability of next state
-    vector< vector<float> > X = matrix_multiply(pi, a);
+    vector< vector<float> > X = cross_matrix_multiply(pi, a);
 //    cout<< "\n\nProbability Distribution of Next state :\n\n";
 //    for(vector<int>::size_type i = 0; i<X.size(); i++)
 //    {
@@ -70,7 +70,7 @@ int main()
     vector< vector<float> > b = B.getHMMmatrix();
 
     //Probability of next state
-    vector< vector<float> > Ob = matrix_multiply(X, b);
+    vector< vector<float> > Ob = cross_matrix_multiply(X, b);
 //    cout<< "\n\nProbability Distribution of Observation :\n\n";
 //    for(vector<int>::size_type i = 0; i<Ob.size(); i++)
 //    {

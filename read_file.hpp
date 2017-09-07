@@ -7,7 +7,7 @@ vector<float> read_file()
 	fstream fp;
     float innum;
 
-    fp.open("sample_00.in");
+    fp.open("hmm2_01.in");
 
     if(fp.is_open())
     {
@@ -19,6 +19,8 @@ vector<float> read_file()
 //        // Print the content of the file
 //        for(it=numbers.begin(); it!=numbers.end(); ++it)
 //            cout<<" "<<*it<<"\t";
+
+
     }
     else
         cout<<"\nDidnt open the file!!!!";
