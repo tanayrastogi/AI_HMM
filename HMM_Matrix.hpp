@@ -11,6 +11,7 @@ public:
     void  setHMMmatrix(vector<float> nmbrs, unsigned int row, unsigned int col, vector<float>:: iterator it);
     vector< vector<float> > getHMMmatrix();
     void  printHMMmatrix();
+    void  clear_matrix();
 
 };
 
@@ -47,3 +48,7 @@ vector< vector<float> > HMMmatrix::getHMMmatrix()
     return mtrx;
 }
 
+void HMMmatrix::clear_matrix()
+{
+    mtrx.clear();
+}

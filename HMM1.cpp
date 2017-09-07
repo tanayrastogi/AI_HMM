@@ -1,6 +1,8 @@
 #include "HMM_Matrix.hpp"
 #include "matrix_multi.hpp"
 #include "read_file.hpp"
+#include "misc.hpp"
+
 
 int main()
  {
@@ -68,53 +70,63 @@ int main()
     vector< vector<float> > pi = Pi.getHMMmatrix();
     vector< vector<float> > seq = Seq.getHMMmatrix();
     vector< vector<float> > alpha;
-    vector< vector<float> > temp;
+    vector< vector<float> > temp1;
+    vector< vector<float> > temp2;
     int pos;
     vector< vector<float> > b_trans = matrix_transpose(b);
-    HMMmatrix ob_at_seq;
+    HMMmatrix OB_SEQ;
 
 
+    // Alpha 0
     it = seq[0].begin();
     pos = *it;
 
     it = b_trans[pos].begin();
-    ob_at_seq.setHMMmatrix(b_trans[pos], 1, b_col, it);
-    temp = ob_at_seq.getHMMmatrix();
+    OB_SEQ.setHMMmatrix(b_trans[pos], 1, b_col, it);
+//    cout<<"\n\nThe observation at "<<pos<<" is:\n";
+//    OB_SEQ.printHMMmatrix();
 
-    // Alpha 0
-    alpha = element_matrix_multiply(pi, temp);
+    temp1 = OB_SEQ.getHMMmatrix();
+    alpha = element_matrix_multiply(pi, temp1);
+//    cout<<"\n\nAlpha at 0 :\n";
+//    vector_print(alpha);
+
+    temp1.clear();
+    OB_SEQ.clear_matrix();
 
     // Rest of the alpha
     for(unsigned int i = 1; i<seq[0].size(); i++)
     {
         it = seq[0].begin() + i;
         pos = *it;
-        cout<<"\n\nThe position is: "<<pos;
 
         it = b_trans[pos].begin();
-        ob_at_seq.setHMMmatrix(b_trans[pos], 1, b_col, it);
-        temp = ob_at_seq.getHMMmatrix();
+        OB_SEQ.setHMMmatrix(b_trans[pos], 1, b_col, it);
+//        cout<<"\n\nThe observation at "<<pos<<" is:\n";
+//        OB_SEQ.printHMMmatrix();
 
-        cout<< "\n\Temp at"<<i<<":\n\n";
-        for(vector<int>::size_type i = 0; i<temp.size(); i++)
-        {
-            for(vector<int>::size_type j = 0; j<temp[0].size(); j++)
-                cout<< temp[i][j]<<"\t";
-            cout<<"\n";
-        }
+        temp1 = OB_SEQ.getHMMmatrix();
+        temp2 = cross_matrix_multiply(alpha, a);
 
-        alpha = element_matrix_multiply(alpha, temp);
-        temp.clear();
+        // Next Alpha
+        alpha = element_matrix_multiply(temp2, temp1);
 
-        cout<< "\n\nAlpha at "<<i<<" :\n\n";
-        for(vector<int>::size_type i = 0; i<alpha.size(); i++)
-        {
-            for(vector<int>::size_type j = 0; j<alpha[0].size(); j++)
-                cout<< alpha[i][j]<<"\t";
-            cout<<"\n";
-        }
+//        cout<< "\n\nAlpha at "<<i<<" :\n\n";
+//        vector_print(alpha);
+
+        temp1.clear();
+        temp2.clear();
+        OB_SEQ.clear_matrix();
+
+
     }
 
+    float sum = 0;
+    for(int i=0; i<alpha.size(); i++)
+        for(int j=0; j<alpha[0].size(); j++)
+            sum = sum + alpha[i][j];
+
+    cout<<"\nThe probability of the given sequence for the given model is: "<<sum;
 
 
     return 0;

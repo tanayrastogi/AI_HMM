@@ -21,21 +21,12 @@ vector< vector<float> > cross_matrix_multiply(vector< vector<float> >& a, vector
 
     // Print A
 //    cout<< "\n\nMatrix A :\n\n";
-//    for(vector<int>::size_type i = 0; i<a_row; i++)
-//        {
-//            for(vector<int>::size_type j = 0; j<a_col; j++)
-//                cout<< a[i][j]<< " ";
-//            cout<<"\n";
-//        }
+//      vector_print(a);
 
     // Print B
 //    cout<< "\n\nMatrix B :\n\n";
-//    for(vector<int>::size_type i = 0; i<b_row; i++)
-//        {
-//            for(vector<int>::size_type j = 0; j<b_col; j++)
-//                cout<< b[i][j]<< " ";
-//            cout<<"\n";
-//        }
+//    vector_print(b);
+
     // Multiply C = A*B
 
     // Check if the row and col satisfy the rule
