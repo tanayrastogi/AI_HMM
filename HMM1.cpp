@@ -22,8 +22,8 @@ int main()
 //    cout<<"\nA_col:"<<a_col;
     ++it;
     A.setHMMmatrix(numbers, a_row, a_col, it);
-    cout<<"\nTransition Matrix A:\n";
-    A.printHMMmatrix();
+//    cout<<"\nTransition Matrix A:\n";
+//    A.printHMMmatrix();
 
     // Matrix B
     it = numbers.begin() + ((a_row*a_col) + 2);
@@ -34,8 +34,8 @@ int main()
 //    cout<<"\nB_col:"<<b_col;
     ++it;
     B.setHMMmatrix(numbers, b_row, b_col, it);
-    cout<<"\nObservation Matrix B:\n";
-    B.printHMMmatrix();
+//    cout<<"\nObservation Matrix B:\n";
+//    B.printHMMmatrix();
 
     // Matrix Pi
     it = numbers.begin() + ((a_row*a_col) + 2) + ((b_row*b_col) + 2);
@@ -46,8 +46,8 @@ int main()
 //    cout<<"\nPi_col:"<<pi_col;
     ++it;
     Pi.setHMMmatrix(numbers, pi_row, pi_col, it);
-    cout<<"\nInitial Pi:\n";
-    Pi.printHMMmatrix();
+//    cout<<"\nInitial Pi:\n";
+//    Pi.printHMMmatrix();
 
     // Observation Sequence
     it = numbers.begin() + ((a_row*a_col) + 2) + ((b_row*b_col) + 2) + ((pi_row*pi_col) + 2);
@@ -57,8 +57,8 @@ int main()
 //    cout<<"\nSeq_col:"<<seq_col;
     ++it;
     Seq.setHMMmatrix(numbers, seq_row, seq_col, it);
-    cout<<"\nObservation Sequence:\n";
-    Seq.printHMMmatrix();
+//    cout<<"\nObservation Sequence:\n";
+//    Seq.printHMMmatrix();
 
     //--------------------------------------------------//
             // Forward Algorithm or Alpha - pass//
@@ -67,21 +67,53 @@ int main()
     vector< vector<float> > b = B.getHMMmatrix();
     vector< vector<float> > pi = Pi.getHMMmatrix();
     vector< vector<float> > seq = Seq.getHMMmatrix();
+    vector< vector<float> > alpha;
+    vector< vector<float> > temp;
+    int pos;
+    vector< vector<float> > b_trans = matrix_transpose(b);
+    HMMmatrix ob_at_seq;
 
-    vector< vector<float> > alpha (a_row, std::vector<float>(seq_col));
-    vector<float> ob_at_seq;
-    vector<float> temp;
 
-    alpha = element_matrix_multiply(a,b);
+    it = seq[0].begin();
+    pos = *it;
+
+    it = b_trans[pos].begin();
+    ob_at_seq.setHMMmatrix(b_trans[pos], 1, b_col, it);
+    temp = ob_at_seq.getHMMmatrix();
 
     // Alpha 0
-//    int pos = seq[0][0];
-//   //Observation matrix at 0
-//    for(unsigned int i = 0; i<b_col; i++)
-//        ob_at_seq.push_back(b[i][pos]);
-//
-//    temp = element_matrix_multiply(pi[0], ob_at_seq);
-//    alpha[0].push_back(temp);
+    alpha = element_matrix_multiply(pi, temp);
+
+    // Rest of the alpha
+    for(unsigned int i = 1; i<seq[0].size(); i++)
+    {
+        it = seq[0].begin() + i;
+        pos = *it;
+        cout<<"\n\nThe position is: "<<pos;
+
+        it = b_trans[pos].begin();
+        ob_at_seq.setHMMmatrix(b_trans[pos], 1, b_col, it);
+        temp = ob_at_seq.getHMMmatrix();
+
+        cout<< "\n\Temp at"<<i<<":\n\n";
+        for(vector<int>::size_type i = 0; i<temp.size(); i++)
+        {
+            for(vector<int>::size_type j = 0; j<temp[0].size(); j++)
+                cout<< temp[i][j]<<"\t";
+            cout<<"\n";
+        }
+
+        alpha = element_matrix_multiply(alpha, temp);
+        temp.clear();
+
+        cout<< "\n\nAlpha at "<<i<<" :\n\n";
+        for(vector<int>::size_type i = 0; i<alpha.size(); i++)
+        {
+            for(vector<int>::size_type j = 0; j<alpha[0].size(); j++)
+                cout<< alpha[i][j]<<"\t";
+            cout<<"\n";
+        }
+    }
 
 
 
