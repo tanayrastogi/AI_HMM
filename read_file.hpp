@@ -7,7 +7,7 @@ vector<float> read_file()
 	fstream fp;
     float innum;
 
-    fp.open("hmm2_01.in");
+    fp.open("hmm3_01.in");
 
     if(fp.is_open())
     {
