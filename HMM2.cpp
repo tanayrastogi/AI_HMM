@@ -64,49 +64,58 @@ int main()
     //--------------------------------------------------//
                   // Veterbi Algorithm //
     //-------------------------------------------------//
+    cout<<"\n\n\n\n";
     vector< vector<float> > a = A.getHMMmatrix();
     vector< vector<float> > b = B.getHMMmatrix();
     vector< vector<float> > pi = Pi.getHMMmatrix();
     vector< vector<float> > seq = Seq.getHMMmatrix();
 
-    vector< vector<float> > delta;
-    vector< vector<float> > delta_temp (a_row, std::vector<float>(a_col));
-    vector< vector<float> > temp_seq;
+    HMMmatrix OB_SEQ;
     int pos;
     float max_val;
     long max_pos;
+    vector< vector<float> > delta;
+    vector< vector<float> > delta_temp (a_row, std::vector<float>(a_col));
+    vector< vector<float> > temp_seq;
+    vector< vector<float> > delta_idx (a_row, std::vector<float>(seq_col));
+    vector<float> answer;
+
+    // Assigning -1 to the index matrix
+    for(unsigned int x = 0; x<a_row; x++)
+        for(unsigned int y = 0; y<seq_col; y++)
+            delta_idx[x][y] = -1;
+
     vector< vector<float> > a_trans = matrix_transpose(a);
     vector< vector<float> > b_trans = matrix_transpose(b);
-    HMMmatrix OB_SEQ;
 
 
-    // Delta 0
+
+    // Time step = 0; Delta 0;
+    cout<<"\nAt Time step 0:";
     it = seq[0].begin();
     pos = *it;
-
     it = b_trans[pos].begin();
     OB_SEQ.setHMMmatrix(b_trans[pos], 1, b_col, it);
-    cout<<"\n\nThe observation at "<<pos<<" is:\n";
+    cout<<"\nThe observation at "<<pos<<" is:\n";
     OB_SEQ.printHMMmatrix();
-
     temp_seq = OB_SEQ.getHMMmatrix();
+
     delta = element_matrix_multiply(pi, temp_seq);
-    cout<<"\n\ndelta at 0 :\n";
+    cout<<"\nDelta at 0 :\n";
     vector_print(delta);
 
-    temp_seq.clear();
     OB_SEQ.clear_matrix();
 
-//    // Rest of the delta
-    for(unsigned int i = 1; i<seq[0].size(); i++)
+    // Rest of the delta
+    for(unsigned int ts = 1; ts<seq[0].size(); ts++)
     {
-        it = seq[0].begin() + i;
+        cout<<"\nAt Time Step "<<ts<<" :";
+        it = seq[0].begin() + ts;
         pos = *it;
-
         it = b_trans[pos].begin();
         OB_SEQ.setHMMmatrix(b_trans[pos], 1, b_col, it);
-        cout<<"\n\nThe observation at "<<pos<<" is:\n";
-        OB_SEQ.printHMMmatrix();
+//        cout<<"\n\nThe observation at "<<pos<<" is:\n";
+//        OB_SEQ.printHMMmatrix();
         temp_seq = OB_SEQ.getHMMmatrix();
 
         for(vector<int>::size_type j = 0; j<delta_temp.size(); j++)
@@ -117,39 +126,47 @@ int main()
             }
         }
 
-        cout<<"\nDelta at"<<pos<<" :\n";
-        vector_print(delta_temp);
+//        cout<<"\nDelta_temp at"<<pos<<" :\n";
+//        vector_print(delta_temp);
 
-        max_pos = max_element(delta_temp[1].begin(), delta_temp[1].end()) - delta_temp[1].begin();
-        max_val = *max_element(delta_temp[1].begin(), delta_temp[1].end());
+        for(unsigned int j = 0; j<delta_temp.size(); j++)
+        {
+            max_pos = max_element(delta_temp[j].begin(), delta_temp[j].end()) - delta_temp[j].begin();
+            delta_idx[j][ts] = max_pos;
 
-        cout<<"\nMaximum value position: "<<max_pos;
-        cout<<"\nMaximum value: "<<max_val;
+            max_val = *max_element(delta_temp[j].begin(), delta_temp[j].end());
+            delta[0][j] = max_val;
+        }
 
+        cout<<"\nDelta_idx at"<<ts<<" :\n";
+        vector_print(delta_idx);
+        cout<<"\nDelta at"<<ts<<" :\n";
+        vector_print(delta);
 
-//
-//        temp1 = OB_SEQ.getHMMmatrix();
-//        temp2 = cross_matrix_multiply(alpha, a);
-//
-//        // Next Alpha
-//        alpha = element_matrix_multiply(temp2, temp1);
-//
-////        cout<< "\n\nAlpha at "<<i<<" :\n\n";
-////        vector_print(alpha);
-//
-        temp_seq.clear();
         OB_SEQ.clear_matrix();
-//
-//
-    }
-//
-//    float sum = 0;
-//    for(int i=0; i<alpha.size(); i++)
-//        for(int j=0; j<alpha[0].size(); j++)
-//            sum = sum + alpha[i][j];
-//
-//    cout<<"\nThe probability of the given sequence for the given model is: "<<sum;
 
+
+    }
+
+    //Backtracking for the
+    // Starting by reading the delta to get the last element of seq
+    max_pos = max_element(delta[0].begin(), delta[0].end()) - delta[0].begin();
+    cout<<"\nMax_position: "<<max_pos;
+    cout<<"\n";
+    answer.push_back(int(max_pos));
+
+
+    for(int ts = (seq_col-1); ts!= 0; ts--)
+    {
+        max_pos = delta_idx[max_pos][ts];
+        answer.push_back(max_pos);
+    }
+
+    reverse(answer.begin(), answer.end());
+
+    cout<<"\nResult: ";
+    for(it = answer.begin(); it!= answer.end() ; it++)
+        cout<<*it<<"\t";
 
     return 0;
 }
