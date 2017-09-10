@@ -106,13 +106,14 @@ int main()
     temp1 = OB_SEQ.getHMMmatrix();
     //Alpha 0
     alpha = element_matrix_multiply(pi, temp1);
-    cout<<"\nAlpha at 0 [before scaling]:\n";
-    vector_print(alpha);
-
-
-    // Scaling factor at zero
-    for(unsigned int x = 0; x<alpha[0].size(); x++)
-        c[0] = c[0] + alpha[0][x];
+    for(vector<int>::size_type i = 0; i<1; i++)
+    {
+        for(unsigned int j = 0; j<a_col; j++)
+        {
+            alpha[i][j] = pi[i][j] * temp1[i][j];
+            c[0] = c[0] + alpha[i][j];
+        }
+    }
     // Scale the alpha0
     c[0] = 1 / c[0];
     for(unsigned int x = 0; x<alpha[0].size(); x++)
@@ -145,15 +146,15 @@ int main()
 
         // Next Alpha
         alpha = element_matrix_multiply(temp2, temp1);
-        cout<<"\nAlpha at "<<ts<<" [before scaling]:\n";
-        vector_print(alpha);
-
-
-        // Scaling factor at zero
-        for(unsigned int x = 0; x<alpha[0].size(); x++)
-            c[ts] = c[ts] + alpha[0][x];
-
-        // Scale the alpha0
+        for(vector<int>::size_type i = 0; i<1; i++)
+        {
+            for(unsigned int j = 0; j<a_col; j++)
+            {
+                alpha[i][j] = temp2[i][j] * temp1[i][j];
+                c[ts] = c[ts] + alpha[i][j];
+            }
+        }
+        // Scale the alpha
         c[ts] = 1 / c[ts];
         for(unsigned int x = 0; x<alpha[0].size(); x++)
           alpha[0][x] = alpha[0][x]*c[ts];
