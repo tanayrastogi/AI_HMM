@@ -4,7 +4,7 @@
 int main()
  {
     HMMmatrix A, B, Pi, Seq;
-    unsigned int a_row, a_col, b_row, b_col, pi_row, pi_col, seq_row, seq_col;
+    unsigned int a_row, a_col, b_row, b_col, pi_row, pi_col;
     float x;
     vector<float> numbers;
     vector<float>::iterator it;
