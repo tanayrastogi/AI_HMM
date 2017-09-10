@@ -1,52 +1,63 @@
 #include "HMM_Matrix.hpp"
 #include "matrix_multi.hpp"
-#include "read_file.hpp"
 
 int main()
  {
-    HMMmatrix A, B, Pi;
-    unsigned int a_row, a_col, b_row, b_col, pi_row, pi_col;
-
-    // Read the input file
+    HMMmatrix A, B, Pi, Seq;
+    unsigned int a_row, a_col, b_row, b_col, pi_row, pi_col, seq_row, seq_col;
+    float x;
     vector<float> numbers;
-    numbers = read_file();
-    vector<float>::iterator it = numbers.begin();
+    vector<float>::iterator it;
 
     // Matrix A
-    a_row = *it;
+    cin>>a_row;
+    cin>>a_col;
+    for(unsigned int i = 0; i<(a_row*a_col); i++)
+    {
+        cin>>x;
+        numbers.push_back(x);
+    }
 //    cout<<"\nA_row:"<<a_row;
-    ++it;
-    a_col = *it;
 //    cout<<"\nA_col:"<<a_col;
-    ++it;
+    it = numbers.begin();
     A.setHMMmatrix(numbers, a_row, a_col, it);
 //    cout<<"\nTransition Matrix A:\n";
 //    A.printHMMmatrix();
 
+
+
     // Matrix B
-    it = numbers.begin() + ((a_row*a_col) + 2);
-    b_row = *it;
+    numbers.clear();
+    cin>>b_row;
+    cin>>b_col;
+    for(unsigned int i = 0; i<(b_row*b_col); i++)
+    {
+        cin>>x;
+        numbers.push_back(x);
+    }
 //    cout<<"\nB_row:"<<b_row;
-    ++it;
-    b_col = *it;
 //    cout<<"\nB_col:"<<b_col;
-    ++it;
+    it = numbers.begin();
     B.setHMMmatrix(numbers, b_row, b_col, it);
 //    cout<<"\nObservation Matrix B:\n";
 //    B.printHMMmatrix();
 
-    // Matrix Pi
-    it = numbers.begin() + ((a_row*a_col) + 2) + ((b_row*b_col) + 2);
-    pi_row = *it;
+//    // Matrix Pi
+    numbers.clear();
+    cin>>pi_row;
+    cin>>pi_col;
+    for(unsigned int i = 0; i<(pi_row*pi_col); i++)
+    {
+        cin>>x;
+        numbers.push_back(x);
+    }
 //    cout<<"\nPi_row:"<<pi_row;
-    ++it;
-    pi_col = *it;
 //    cout<<"\nPi_col:"<<pi_col;
-    ++it;
+    it = numbers.begin();
     Pi.setHMMmatrix(numbers, pi_row, pi_col, it);
-//    cout<<"\nInitial Probability distrubution Pi:\n";
+//    cout<<"\nInitial Pi:\n";
 //    Pi.printHMMmatrix();
-//
+
     //--------------------------------------------------//
     // Probability of next state given the current state//
     //-------------------------------------------------//
@@ -87,6 +98,7 @@ int main()
         for(vector<int>::size_type j = 0; j<Ob[0].size(); j++)
             cout<< Ob[i][j]<<" ";
     }
+    cout<<"\n";
 
     return 0;
 }
