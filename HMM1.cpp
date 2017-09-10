@@ -1,66 +1,84 @@
 #include "HMM_Matrix.hpp"
 #include "matrix_multi.hpp"
-#include "read_file.hpp"
-#include "misc.hpp"
 
+
+// Alpha Pass
 
 int main()
  {
     HMMmatrix A, B, Pi, Seq;
     unsigned int a_row, a_col, b_row, b_col, pi_row, pi_col, seq_row, seq_col;
-
-    // Read the input file
+    float x;
     vector<float> numbers;
-    numbers = read_file();
     vector<float>::iterator it;
 
-
     // Matrix A
-    it = numbers.begin();
-    a_row = *it;
+    cin>>a_row;
+    cin>>a_col;
+    for(unsigned int i = 0; i<(a_row*a_col); i++)
+    {
+        cin>>x;
+        numbers.push_back(x);
+    }
 //    cout<<"\nA_row:"<<a_row;
-    ++it;
-    a_col = *it;
 //    cout<<"\nA_col:"<<a_col;
-    ++it;
+    it = numbers.begin();
     A.setHMMmatrix(numbers, a_row, a_col, it);
 //    cout<<"\nTransition Matrix A:\n";
 //    A.printHMMmatrix();
 
+
+
     // Matrix B
-    it = numbers.begin() + ((a_row*a_col) + 2);
-    b_row = *it;
+    numbers.clear();
+    cin>>b_row;
+    cin>>b_col;
+    for(unsigned int i = 0; i<(b_row*b_col); i++)
+    {
+        cin>>x;
+        numbers.push_back(x);
+    }
 //    cout<<"\nB_row:"<<b_row;
-    ++it;
-    b_col = *it;
 //    cout<<"\nB_col:"<<b_col;
-    ++it;
+    it = numbers.begin();
     B.setHMMmatrix(numbers, b_row, b_col, it);
 //    cout<<"\nObservation Matrix B:\n";
 //    B.printHMMmatrix();
 
-    // Matrix Pi
-    it = numbers.begin() + ((a_row*a_col) + 2) + ((b_row*b_col) + 2);
-    pi_row = *it;
+//    // Matrix Pi
+    numbers.clear();
+    cin>>pi_row;
+    cin>>pi_col;
+    for(unsigned int i = 0; i<(pi_row*pi_col); i++)
+    {
+        cin>>x;
+        numbers.push_back(x);
+    }
 //    cout<<"\nPi_row:"<<pi_row;
-    ++it;
-    pi_col = *it;
 //    cout<<"\nPi_col:"<<pi_col;
-    ++it;
+    it = numbers.begin();
     Pi.setHMMmatrix(numbers, pi_row, pi_col, it);
 //    cout<<"\nInitial Pi:\n";
 //    Pi.printHMMmatrix();
 
     // Observation Sequence
-    it = numbers.begin() + ((a_row*a_col) + 2) + ((b_row*b_col) + 2) + ((pi_row*pi_col) + 2);
+    numbers.clear();
     seq_row = 1;
+    cin>>seq_col;
+    for(unsigned int i = 0; i<(seq_row*seq_col); i++)
+    {
+        cin>>x;
+        numbers.push_back(x);
+    }
 //    cout<<"\nSeq_row:"<<seq_row;
-    seq_col = *it;
 //    cout<<"\nSeq_col:"<<seq_col;
-    ++it;
+    it = numbers.begin();
     Seq.setHMMmatrix(numbers, seq_row, seq_col, it);
 //    cout<<"\nObservation Sequence:\n";
 //    Seq.printHMMmatrix();
+
+
+
 
     //--------------------------------------------------//
             // Forward Algorithm or Alpha - pass//
@@ -122,11 +140,12 @@ int main()
     }
 
     float sum = 0;
-    for(int i=0; i<alpha.size(); i++)
-        for(int j=0; j<alpha[0].size(); j++)
+    for(unsigned int i=0; i<alpha.size(); i++)
+        for(unsigned int j=0; j<alpha[0].size(); j++)
             sum = sum + alpha[i][j];
 
     cout<<"\nThe probability of the given sequence for the given model is: "<<sum;
+    cout<<"\n";
 
 
     return 0;
