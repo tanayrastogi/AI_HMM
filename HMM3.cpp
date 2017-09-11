@@ -1,26 +1,16 @@
-#include "HMM_Matrix.hpp"
-#include "matrix_multi.hpp"
-#include "misc.hpp"
+#include "HMM_Matrix_hmm3.hpp"
+#include "misc_hmm3.hpp"
 #include "math.h"
 
 // Alpha Pass
 
 int main()
  {
-    int flag = 0;
-    int maxiter = 10;
-    int iter;
-    float denom;
-    float numer;
-    float logProb;
-    float oldlogProb = -1000;
-    int pos;
-
     HMMmatrix A, B, Pi, Seq;
     unsigned int a_row, a_col, b_row, b_col, pi_row, pi_col, seq_row, seq_col;
-    float x;
-    vector<float> numbers;
-    vector<float>::iterator it;
+    double x;
+    vector<double> numbers;
+    vector<double>::iterator it;
 
     // Matrix A
     cin>>a_row;
@@ -85,241 +75,208 @@ int main()
 //    cout<<"\nObservation Sequence:\n";
 //    Seq.printHMMmatrix();
 
-    vector< vector<float> > a = A.getHMMmatrix();
-    vector< vector<float> > b = B.getHMMmatrix();
-    vector< vector<float> > pi = Pi.getHMMmatrix();
-    vector< vector<float> > seq = Seq.getHMMmatrix();
 
-    vector< vector<float> > alpha (seq_col, vector<float>(a_col));
-    vector< vector<float> > beta  (seq_col, vector<float>(a_col));
-    vector< vector<float> > gamma (1, vector<float>(a_col));
-    vector< vector< vector<float> > > digamma (seq_col,vector< vector<float> >(a_col, vector<float>(a_col)));
-    vector< vector<float> > temp1;
-    vector< vector<float> > temp2;
-    vector< vector<float> > temp3;
-    vector< vector<float> > temp4;
-    vector< vector<float> > b_trans = matrix_transpose(b);
-    HMMmatrix OB_SEQ;
-    vector<float> c (seq_col); // used for scaling of the probabilities
+
+         //--------------------------------------------------//
+        //--------------------------------------------------//
+                // Baum - Welch Learning Algorithm //
+        //-------------------------------------------------//
+       //-------------------------------------------------//
+
+    vector< vector<double> > a = A.getHMMmatrix();
+    vector< vector<double> > b = B.getHMMmatrix();
+    vector< vector<double> > pi = Pi.getHMMmatrix();
+    vector< vector<double> > seq = Seq.getHMMmatrix();
+    int observpos;
+
+    vector< vector<double> > alpha (seq_col, vector<double>(a_col));
+    vector< vector<double> > beta  (seq_col, vector<double>(a_col));
+    vector< vector<double> > gamma (1, vector<double>(a_col));
+    vector< vector< vector<double> > > digamma (seq_col,vector< vector<double> >(a_col, vector<double>(a_col)));
+    vector<double> c (seq_col); // used for scaling of the probabilities
+    int num_states = a_row; // Number of states
+    int len_obs = seq_col; // Length of observation sequence
+    int num_ob = b_col;   // Number of possible observations
+
+
+    int maxiter = 10; // Number of iterations
+    int flag = 0; // Variable to check the loop for iteration of learning
+    int iter = 0; // Number of actual iteration
+    double denom;
+    double numer;
+    double logProb;
+    double oldlogProb = -1000;
+
+
 
     do
     {
         //--------------------------------------------------//
-                // Forward Algorithm or Alpha - pass//
+                // Alpha - pass// (Step2)
         //-------------------------------------------------//
 
 
-        // Alpha 0
-        it = seq[0].begin();
-        pos = *it;
-        it = b_trans[pos].begin();
-        OB_SEQ.setHMMmatrix(b_trans[pos], 1, b_col, it);
-    //    cout<<"\n\nThe observation at "<<pos<<" is:\n";
-    //    OB_SEQ.printHMMmatrix();
-
-        temp1 = OB_SEQ.getHMMmatrix();
-        //Alpha 0
-        cout<<"\nAlpha at [before scaling] 0:\n";
-        for(unsigned int j = 0; j<a_col; j++)
+        // Alpha @ t=0
+        observpos = seq[0][0];
+        for(int i = 0; i<num_states; i++)
         {
-            alpha[0][j] = pi[0][j]*temp1[0][j];
-            cout<<"\t"<<alpha[0][j];
-            c[0] = c[0] + alpha[0][j];
+            alpha[0][i] = pi[0][i]*b[i][observpos];
+            c[0] = c[0] + alpha[0][i];
         }
+
         // Scale the alpha0
         c[0] = 1 / c[0];
-        for(unsigned int x = 0; x<alpha[0].size(); x++)
-              alpha[0][x] = alpha[0][x]*c[0];
+        for(int i = 0; i<num_states; i++)
+              alpha[0][i] = alpha[0][i]*c[0];
 
-
-        cout<<"\nAlpha at [after scaling] 0:\n";
-        vector_print(alpha);
-        cout<<"\nC0 :";
-        for(it = c.begin(); it!=c.end(); it++)
-            cout<<" "<<*it;
-
-
-        temp1.clear();
-        OB_SEQ.clear_matrix();
+//        cout<<"\nAlpha at [after scaling] 0:\n";
+//        vector_print(alpha);
+//        cout<<"\nC0 :";
+//        for(it = c.begin(); it!=c.end(); it++)
+//            cout<<" "<<*it;
 
         // Rest of the alpha
-        for(unsigned int ts = 1; ts<seq_col; ts++)
+        for(int ts = 1; ts<len_obs; ts++)
         {
-            it = seq[0].begin() + ts;
-            pos = *it;
-
-            it = b_trans[pos].begin();
-            OB_SEQ.setHMMmatrix(b_trans[pos], 1, b_col, it);
-    //        cout<<"\n\nThe observation at "<<pos<<" is:\n";
-    //        OB_SEQ.printHMMmatrix();
-
-            temp1 = OB_SEQ.getHMMmatrix();
-            temp2 = cross_matrix_multiply(alpha, a);
-
-            // Next Alpha
-            cout<<"\nAlpha at [before scaling] "<<ts<<" :";
-            for(unsigned int j = 0; j<a_col; j++)
+            observpos = seq[0][ts];
+            for(int i=0; i<num_states; i++)
             {
-                alpha[ts][j] = temp2[ts][j] * temp1[0][j];
-                c[ts] = c[ts] + alpha[ts][j];
+                for(int j = 0; j<num_states; j++)
+                    alpha[ts][i] = alpha[ts][i] + alpha[ts-1][j]*a[j][i];
 
+                alpha[ts][i] = alpha[ts][i]*b[i][observpos];
+                c[ts] = c[ts] + alpha[ts][i];
             }
-
-
-            // Scale the alpha0
-            c[ts] = 1 / c[ts];
-            for(unsigned int x = 0; x<alpha[ts].size(); x++)
-              alpha[ts][x] = alpha[ts][x]*c[ts];
-
-            cout<< "\nAlpha at [after scaling] "<<ts<<" :\n\n";
-            vector_print(alpha);
-            cout<<"\nC"<<ts<<" :";
-            for(it = c.begin(); it!=c.end(); it++)
-                cout<<" "<<*it;
-
-            temp1.clear();
-            temp2.clear();
-            OB_SEQ.clear_matrix();
-
-
         }
+
+
+
 
         //--------------------------------------------------//
-                // Backward Algorithm or Beta - pass//
+                // Beta - pass// (Step 3)
         //-------------------------------------------------//
+
         // Beta @ t-1
-        for(unsigned int i=0; i<a_col; i++)
+        for(int i=0; i<num_states; i++)
+            beta[len_obs-1][i] = c[len_obs];
+
+        // Beta for t-2 until 0
+        for(int ts=len_obs-2; ts>-1; ts--)
         {
-            beta[seq_col][i] = c[seq_col];
-        }
+            observpos = seq[0][ts+1];
 
-
-        // Beta for t>0
-        for(unsigned int ts=seq_col-1; ts>0; ts--)
-        {
-            it = seq[0].begin() + ts;
-            pos = *it;
-
-            it = b_trans[pos].begin();
-            OB_SEQ.setHMMmatrix(b_trans[pos], 1, b_col, it);
-
-
-            temp1 = OB_SEQ.getHMMmatrix();
-            //temp2 = cross_matrix_multiply(alpha, a);
-            //temp3 = cross_matrix_multiply(temp2, beta);
-
-            for(unsigned int i = 0; i<a_col; i++)
+            // Rest of beta
+            for(int i = 0; i<num_states; i++)
             {
                 beta[ts][i] = 0;
-                for(unsigned int j = 0; j<a_col; j++)
-                {
-                    beta[ts][i] = beta[ts][i] + a[i][j]*b[ts][j]*beta[ts][j];
-                }
+                for(int j = 0; j<num_states; j++)
+                    beta[ts][i] = beta[ts][i] + a[i][j]*b[j][observpos]*beta[ts+1][j];
+
                 beta[ts][i] = c[ts]*beta[ts][i];
             }
         }
+
+
+
+
 
         //--------------------------------------------------//
                 // Find Gamma / Di-Gamma//  (STEP 4)
         //-------------------------------------------------//
 
-        for(unsigned int ts=0; ts < seq_col-1; ts++)
+        for(int ts=0; ts < len_obs-1; ts++)
         {
             denom = 0;
             // We always calculate the next observation sequence (t+1)
-            it = seq[0].begin() + ts + 1;
-            pos = *it;
+            observpos = seq[0][ts+1];
 
-            it = b_trans[pos].begin();
-            OB_SEQ.setHMMmatrix(b_trans[pos], 1, b_col, it);
-            temp1 = OB_SEQ.getHMMmatrix();
-
-            for(unsigned int i = 0; i <a_col; i++)
+            for(int i = 0; i <num_states; i++)
             {
-                for(unsigned int j = 0; j <a_col; j++ )
-                {
-                    denom += alpha[ts][i]*a[i][j]*temp1[0][j]*beta[ts+1][j];
-                }
+                for(int j = 0; j <num_states; j++ )
+                    denom = denom + alpha[ts][i]*a[i][j]*b[j][observpos]*beta[ts+1][j];
             }
-            for(unsigned int i = 0; i <a_col; i++)
+
+            for(int i = 0; i <num_states; i++)
             {
-                for(unsigned int j = 0; j <a_col; j++ )
+                gamma[ts][i] = 0;
+                for(int j = 0; j <num_states; j++ )
                 {
-                    digamma[ts][i][j] = (alpha[ts][i]*a[i][j]*temp1[0][j]*beta[ts+1][j])/denom;
-                    gamma[ts][i] += digamma[ts][i][j];
+                    digamma[ts][i][j] = (alpha[ts][i]*a[i][j]*b[j][observpos]*beta[ts+1][j]) / denom;
+                    gamma[ts][i] = gamma[ts][i] + digamma[ts][i][j];
                 }
             }
 
         }
 
-        // For ts = T - 1;
+        // Special case : Gamma for ts = T - 1;
         denom = 0;
-        for (unsigned int i=0; i<a_col; i++)
-        {
-            denom += alpha[seq_col-1][i];
-        }
+        for (int i=0; i<num_states; i++)
+            denom = denom + alpha[len_obs-1][i];
 
-        for (unsigned int i=0; i<a_col; i++)
-        {
-            gamma[seq_col-1][i] = alpha[seq_col-1][i]/denom;
-        }
+        for (int i=0; i<num_states; i++)
+            gamma[len_obs-1][i] = alpha[len_obs-1][i] / denom;
+
+
+
+
 
         //--------------------------------------------------//
                 // Re-Estimate A, B, pi //  (STEP 5)
         //-------------------------------------------------//
 
         // Re-estimate Pi
-        for (unsigned int i=0; i<pi_col; i++)
-        {
+        for (int i=0; i<num_states; i++)
             pi[0][i] = gamma[0][i];
-        }
 
         // Re-estimate A
-        for (unsigned int i=0; i<a_row; i++)
+        for (int i=0; i<num_states; i++)
         {
-            for (unsigned int j=0; j<a_col; j++)
+            for (int j=0; j<num_states; j++)
             {
                 numer = 0;
                 denom = 0;
-                for (unsigned ts = 0; ts < seq_col - 1; ts++)
+                for (int ts = 0; ts<len_obs-1; ts++)
                 {
                     numer += digamma[ts][i][j];
                     denom += gamma[ts][i];
                 }
-            a[i][j] = numer / denom;
+                a[i][j] = numer / denom;
             }
         }
 
-
         // Re-estimate B
-        for (unsigned int i=0; i<b_row; i++)
+        for (int i=0; i<num_states; i++)
         {
-            for (unsigned int j=0; i<b_col; j++)
+            for (int j=0; i<num_ob; j++)
             {
                 numer = 0;
                 denom = 0;
-                for (unsigned ts = 0; ts < seq_col; ts++)
+                for (int ts = 0; ts<len_obs; ts++)
                 {
                     if(seq[0][ts]==j)
-                    {
                         numer += gamma[ts][i];
-                    }
+
                     denom += gamma[ts][i];
                 }
-                b[i][j] = numer/denom;
+                b[i][j] = numer / denom;
             }
         }
+
+
+
+
 
         //--------------------------------------------------//
                 // Compute log(P(O|lamda)) //  (STEP 6)
         //-------------------------------------------------//
 
         logProb = 0;
-        for (unsigned i = 0; i < seq_col; i++)
-        {
+        for (int i = 0; i < len_obs; i++)
             logProb += log(c[i]);
-        }
+
         logProb = -logProb;
+
+
 
 
         //--------------------------------------------------//
@@ -332,13 +289,18 @@ int main()
             flag = 0;
         }
         else
-        {
             flag = 1;
-        }
-
 
     }
     while(flag != 1);
+
+    cout<<"\n\n The final model after learning is:";
+    cout<<"\nMatrix A:";
+    vector_print(a);
+    cout<<"\nMatrix B:";
+    vector_print(b);
+    cout<<"\nMatrix Pi:";
+    vector_print(pi);
 
 return 0;
 }
