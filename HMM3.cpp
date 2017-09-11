@@ -24,8 +24,8 @@ int main()
 //    cout<<"\nA_col:"<<a_col;
     it = numbers.begin();
     A.setHMMmatrix(numbers, a_row, a_col, it);
-//    cout<<"\nTransition Matrix A:\n";
-//    A.printHMMmatrix();
+    cout<<"\nTransition Matrix A:\n";
+    A.printHMMmatrix();
 
     // Matrix B
     numbers.clear();
@@ -40,8 +40,8 @@ int main()
 //    cout<<"\nB_col:"<<b_col;
     it = numbers.begin();
     B.setHMMmatrix(numbers, b_row, b_col, it);
-//    cout<<"\nObservation Matrix B:\n";
-//    B.printHMMmatrix();
+    cout<<"\nObservation Matrix B:\n";
+    B.printHMMmatrix();
 
 //    // Matrix Pi
     numbers.clear();
@@ -56,8 +56,8 @@ int main()
 //    cout<<"\nPi_col:"<<pi_col;
     it = numbers.begin();
     Pi.setHMMmatrix(numbers, pi_row, pi_col, it);
-//    cout<<"\nInitial Pi:\n";
-//    Pi.printHMMmatrix();
+    cout<<"\nInitial Pi:\n";
+    Pi.printHMMmatrix();
 
     // Observation Sequence
     numbers.clear();
@@ -68,8 +68,8 @@ int main()
         cin>>x;
         numbers.push_back(x);
     }
-//    cout<<"\nSeq_row:"<<seq_row;
-//    cout<<"\nSeq_col:"<<seq_col;
+    cout<<"\nSeq_row:"<<seq_row;
+    cout<<"\nSeq_col:"<<seq_col;
     it = numbers.begin();
     Seq.setHMMmatrix(numbers, seq_row, seq_col, it);
 //    cout<<"\nObservation Sequence:\n";
@@ -83,20 +83,23 @@ int main()
         //-------------------------------------------------//
        //-------------------------------------------------//
 
+    cout<<"\n";
     vector< vector<double> > a = A.getHMMmatrix();
     vector< vector<double> > b = B.getHMMmatrix();
     vector< vector<double> > pi = Pi.getHMMmatrix();
     vector< vector<double> > seq = Seq.getHMMmatrix();
     int observpos;
 
-    vector< vector<double> > alpha (seq_col, vector<double>(a_col));
-    vector< vector<double> > beta  (seq_col, vector<double>(a_col));
-    vector< vector<double> > gamma (1, vector<double>(a_col));
-    vector< vector< vector<double> > > digamma (seq_col,vector< vector<double> >(a_col, vector<double>(a_col)));
-    vector<double> c (seq_col); // used for scaling of the probabilities
     int num_states = a_row; // Number of states
     int len_obs = seq_col; // Length of observation sequence
     int num_ob = b_col;   // Number of possible observations
+
+    vector< vector<double> > alpha (len_obs, vector<double>(num_states));
+    vector< vector<double> > beta  (len_obs, vector<double>(num_states));
+    vector< vector<double> > gamma (len_obs, vector<double>(num_states));
+    vector< vector< vector<double> > > digamma (len_obs,vector< vector<double> >(num_states, vector<double>(num_states)));
+    vector<double> c (len_obs); // used for scaling of the probabilities
+
 
 
     int maxiter = 10; // Number of iterations
@@ -105,8 +108,13 @@ int main()
     double denom;
     double numer;
     double logProb;
-    double oldlogProb = -1000;
+    double oldlogProb = -10000000;
 
+    //-----------------------Testing Area-----------------//
+//    cout<<"\nSize of beta 1st vector:"<<beta.size();
+//    cout<<"\nSize of beta 2nd vector:"<<beta[0].size();
+//    cout<<"\nSize of di-gamma 3rd vector:"<<digamma[0][0].size();
+    //-----------------------Testing Area-----------------//
 
 
     do
@@ -129,12 +137,6 @@ int main()
         for(int i = 0; i<num_states; i++)
               alpha[0][i] = alpha[0][i]*c[0];
 
-//        cout<<"\nAlpha at [after scaling] 0:\n";
-//        vector_print(alpha);
-//        cout<<"\nC0 :";
-//        for(it = c.begin(); it!=c.end(); it++)
-//            cout<<" "<<*it;
-
         // Rest of the alpha
         for(int ts = 1; ts<len_obs; ts++)
         {
@@ -147,7 +149,20 @@ int main()
                 alpha[ts][i] = alpha[ts][i]*b[i][observpos];
                 c[ts] = c[ts] + alpha[ts][i];
             }
+            // Rescaling of rest of the alpha
+            c[ts] = 1 / c[ts];
+            for(int i=0; i<num_states; i++)
+                alpha[ts][i] = c[ts]*alpha[ts][i];
         }
+
+//        //--------------------Testing Area------------------//
+//        cout<<"\nALPHA :\n";
+//        vector_print(alpha);
+//        cout<<"\nMATRIX C:\n";
+//        for(it = c.begin(); it!= c.end(); it++)
+//            cout<<*it<<"\t";
+        cout<<"\n";
+//        //--------------------Testing Area------------------//
 
 
 
@@ -158,7 +173,8 @@ int main()
 
         // Beta @ t-1
         for(int i=0; i<num_states; i++)
-            beta[len_obs-1][i] = c[len_obs];
+            beta[len_obs-1][i] = c[len_obs-1];
+
 
         // Beta for t-2 until 0
         for(int ts=len_obs-2; ts>-1; ts--)
@@ -176,7 +192,10 @@ int main()
             }
         }
 
-
+//        //--------------------Testing Area------------------//
+//        cout<<"\nBETA :\n";
+//        vector_print(beta);
+//        //--------------------Testing Area------------------//
 
 
 
@@ -193,7 +212,9 @@ int main()
             for(int i = 0; i <num_states; i++)
             {
                 for(int j = 0; j <num_states; j++ )
+                {
                     denom = denom + alpha[ts][i]*a[i][j]*b[j][observpos]*beta[ts+1][j];
+                }
             }
 
             for(int i = 0; i <num_states; i++)
@@ -205,8 +226,8 @@ int main()
                     gamma[ts][i] = gamma[ts][i] + digamma[ts][i][j];
                 }
             }
-
         }
+
 
         // Special case : Gamma for ts = T - 1;
         denom = 0;
@@ -215,6 +236,24 @@ int main()
 
         for (int i=0; i<num_states; i++)
             gamma[len_obs-1][i] = alpha[len_obs-1][i] / denom;
+
+
+//        //--------------------Testing Area------------------//
+//        cout<<"\nGAMMA :\n";
+//        vector_print(gamma);
+//        cout<<"\nDIGAMMA :\n";
+//        for(int i = 0; i<digamma.size(); i++)
+//        {
+//            cout<<"\nFor time step "<<i<<" :\n";
+//            for(int j=0; j<digamma[0].size(); j++)
+//                {
+//                    for(int k=0; k<digamma[0][0].size(); k++)
+//                        cout<<digamma[i][j][k]<<"\t";
+//                    cout<<"\n";
+//                }
+//                cout<<"\n";
+//        }
+//        //--------------------Testing Area------------------//
 
 
 
@@ -247,7 +286,7 @@ int main()
         // Re-estimate B
         for (int i=0; i<num_states; i++)
         {
-            for (int j=0; i<num_ob; j++)
+            for (int j=0; j<num_ob; j++)
             {
                 numer = 0;
                 denom = 0;
@@ -282,7 +321,10 @@ int main()
         //--------------------------------------------------//
                 // Check Iterations //  (STEP 7)
         //-------------------------------------------------//
+        cout<<"\nLoop number: "<<iter;
         iter++;
+        cout<<"\nLogProb: "<<logProb;
+        cout<<"\nOLDLogProb: "<<oldlogProb;
         if(iter<maxiter && logProb > oldlogProb)
         {
             oldlogProb = logProb;
@@ -290,16 +332,17 @@ int main()
         }
         else
             flag = 1;
-
     }
     while(flag != 1);
 
-    cout<<"\n\n The final model after learning is:";
-    cout<<"\nMatrix A:";
+    cout<<"\n\nShit is done!\n";
+
+    cout<<"\n\nThe final model after learning is:";
+    cout<<"\nMatrix A:\n";
     vector_print(a);
-    cout<<"\nMatrix B:";
+    cout<<"\nMatrix B:\n";
     vector_print(b);
-    cout<<"\nMatrix Pi:";
+    cout<<"\nMatrix Pi:\n";
     vector_print(pi);
 
 return 0;
