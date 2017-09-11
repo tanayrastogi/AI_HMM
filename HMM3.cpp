@@ -102,7 +102,7 @@ int main()
 
 
 
-    int maxiter = 10; // Number of iterations
+    int maxiter = 100; // Number of iterations
     int flag = 0; // Variable to check the loop for iteration of learning
     int iter = 0; // Number of actual iteration
     double denom;
@@ -122,10 +122,11 @@ int main()
         //--------------------------------------------------//
                 // Alpha - pass// (Step2)
         //-------------------------------------------------//
-
+        cout<<"\nLoop number: "<<iter;
 
         // Alpha @ t=0
         observpos = seq[0][0];
+        c[0] = 0;
         for(int i = 0; i<num_states; i++)
         {
             alpha[0][i] = pi[0][i]*b[i][observpos];
@@ -141,8 +142,10 @@ int main()
         for(int ts = 1; ts<len_obs; ts++)
         {
             observpos = seq[0][ts];
+            c[ts] = 0;
             for(int i=0; i<num_states; i++)
             {
+                alpha[ts][i] = 0;
                 for(int j = 0; j<num_states; j++)
                     alpha[ts][i] = alpha[ts][i] + alpha[ts-1][j]*a[j][i];
 
@@ -161,7 +164,7 @@ int main()
 //        cout<<"\nMATRIX C:\n";
 //        for(it = c.begin(); it!= c.end(); it++)
 //            cout<<*it<<"\t";
-        cout<<"\n";
+//        cout<<"\n";
 //        //--------------------Testing Area------------------//
 
 
@@ -225,6 +228,7 @@ int main()
                     digamma[ts][i][j] = (alpha[ts][i]*a[i][j]*b[j][observpos]*beta[ts+1][j]) / denom;
                     gamma[ts][i] = gamma[ts][i] + digamma[ts][i][j];
                 }
+
             }
         }
 
@@ -264,9 +268,11 @@ int main()
         //-------------------------------------------------//
 
         // Re-estimate Pi
-        for (int i=0; i<num_states; i++)
-            pi[0][i] = gamma[0][i];
 
+        for (int i=0; i<num_states; i++)
+        {
+            pi[0][i] = gamma[0][i];
+        }
         // Re-estimate A
         for (int i=0; i<num_states; i++)
         {
@@ -316,12 +322,9 @@ int main()
         logProb = -logProb;
 
 
-
-
         //--------------------------------------------------//
                 // Check Iterations //  (STEP 7)
         //-------------------------------------------------//
-        cout<<"\nLoop number: "<<iter;
         iter++;
         cout<<"\nLogProb: "<<logProb;
         cout<<"\nOLDLogProb: "<<oldlogProb;
@@ -337,13 +340,15 @@ int main()
 
     cout<<"\n\nShit is done!\n";
 
-    cout<<"\n\nThe final model after learning is:";
+    cout<<"\n\nThe model after learning is:";
     cout<<"\nMatrix A:\n";
     vector_print(a);
     cout<<"\nMatrix B:\n";
     vector_print(b);
     cout<<"\nMatrix Pi:\n";
     vector_print(pi);
+
+
 
 return 0;
 }
