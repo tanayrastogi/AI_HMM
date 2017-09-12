@@ -20,12 +20,8 @@ int main()
         cin>>x;
         numbers.push_back(x);
     }
-//    cout<<"\nA_row:"<<a_row;
-//    cout<<"\nA_col:"<<a_col;
     it = numbers.begin();
     A.setHMMmatrix(numbers, a_row, a_col, it);
-    cout<<"\nTransition Matrix A:\n";
-    A.printHMMmatrix();
 
     // Matrix B
     numbers.clear();
@@ -36,12 +32,8 @@ int main()
         cin>>x;
         numbers.push_back(x);
     }
-//    cout<<"\nB_row:"<<b_row;
-//    cout<<"\nB_col:"<<b_col;
     it = numbers.begin();
     B.setHMMmatrix(numbers, b_row, b_col, it);
-    cout<<"\nObservation Matrix B:\n";
-    B.printHMMmatrix();
 
 //    // Matrix Pi
     numbers.clear();
@@ -52,12 +44,8 @@ int main()
         cin>>x;
         numbers.push_back(x);
     }
-//    cout<<"\nPi_row:"<<pi_row;
-//    cout<<"\nPi_col:"<<pi_col;
     it = numbers.begin();
     Pi.setHMMmatrix(numbers, pi_row, pi_col, it);
-    cout<<"\nInitial Pi:\n";
-    Pi.printHMMmatrix();
 
     // Observation Sequence
     numbers.clear();
@@ -68,12 +56,8 @@ int main()
         cin>>x;
         numbers.push_back(x);
     }
-    cout<<"\nSeq_row:"<<seq_row;
-    cout<<"\nSeq_col:"<<seq_col;
     it = numbers.begin();
     Seq.setHMMmatrix(numbers, seq_row, seq_col, it);
-//    cout<<"\nObservation Sequence:\n";
-//    Seq.printHMMmatrix();
 
 
 
@@ -83,7 +67,6 @@ int main()
         //-------------------------------------------------//
        //-------------------------------------------------//
 
-    cout<<"\n";
     vector< vector<double> > a = A.getHMMmatrix();
     vector< vector<double> > b = B.getHMMmatrix();
     vector< vector<double> > pi = Pi.getHMMmatrix();
@@ -102,7 +85,7 @@ int main()
 
 
 
-    int maxiter = 100; // Number of iterations
+    int maxiter = 1; // Number of iterations
     int flag = 0; // Variable to check the loop for iteration of learning
     int iter = 0; // Number of actual iteration
     double denom;
@@ -110,20 +93,11 @@ int main()
     double logProb;
     double oldlogProb = -10000000;
 
-    //-----------------------Testing Area-----------------//
-//    cout<<"\nSize of beta 1st vector:"<<beta.size();
-//    cout<<"\nSize of beta 2nd vector:"<<beta[0].size();
-//    cout<<"\nSize of di-gamma 3rd vector:"<<digamma[0][0].size();
-    //-----------------------Testing Area-----------------//
-
-
     do
     {
         //--------------------------------------------------//
                 // Alpha - pass// (Step2)
         //-------------------------------------------------//
-        cout<<"\nLoop number: "<<iter;
-
         // Alpha @ t=0
         observpos = seq[0][0];
         c[0] = 0;
@@ -158,17 +132,6 @@ int main()
                 alpha[ts][i] = c[ts]*alpha[ts][i];
         }
 
-//        //--------------------Testing Area------------------//
-//        cout<<"\nALPHA :\n";
-//        vector_print(alpha);
-//        cout<<"\nMATRIX C:\n";
-//        for(it = c.begin(); it!= c.end(); it++)
-//            cout<<*it<<"\t";
-//        cout<<"\n";
-//        //--------------------Testing Area------------------//
-
-
-
 
         //--------------------------------------------------//
                 // Beta - pass// (Step 3)
@@ -194,12 +157,6 @@ int main()
                 beta[ts][i] = c[ts]*beta[ts][i];
             }
         }
-
-//        //--------------------Testing Area------------------//
-//        cout<<"\nBETA :\n";
-//        vector_print(beta);
-//        //--------------------Testing Area------------------//
-
 
 
         //--------------------------------------------------//
@@ -240,26 +197,6 @@ int main()
 
         for (int i=0; i<num_states; i++)
             gamma[len_obs-1][i] = alpha[len_obs-1][i] / denom;
-
-
-//        //--------------------Testing Area------------------//
-//        cout<<"\nGAMMA :\n";
-//        vector_print(gamma);
-//        cout<<"\nDIGAMMA :\n";
-//        for(int i = 0; i<digamma.size(); i++)
-//        {
-//            cout<<"\nFor time step "<<i<<" :\n";
-//            for(int j=0; j<digamma[0].size(); j++)
-//                {
-//                    for(int k=0; k<digamma[0][0].size(); k++)
-//                        cout<<digamma[i][j][k]<<"\t";
-//                    cout<<"\n";
-//                }
-//                cout<<"\n";
-//        }
-//        //--------------------Testing Area------------------//
-
-
 
 
 
@@ -326,8 +263,6 @@ int main()
                 // Check Iterations //  (STEP 7)
         //-------------------------------------------------//
         iter++;
-        cout<<"\nLogProb: "<<logProb;
-        cout<<"\nOLDLogProb: "<<oldlogProb;
         if(iter<maxiter && logProb > oldlogProb)
         {
             oldlogProb = logProb;
@@ -338,18 +273,33 @@ int main()
     }
     while(flag != 1);
 
-    cout<<"\n\nShit is done!\n";
+    cout<<"\nAfter the learning algorithm";
 
-    cout<<"\n\nThe model after learning is:";
-    cout<<"\nMatrix A:\n";
+    cout<<"\nNumber of iterations: ";
+    cout<<iter;
+
+    // A-Matrix to kattis
+    cout<<"\nMATRIX A:";
+    cout<<"\nA_row: "<<a_row;
+    cout<<"\nA_col: "<<a_col;
+    cout<<"\n";
     vector_print(a);
-    cout<<"\nMatrix B:\n";
+
+    // B-Matrix to kattis
+    cout<<"\nMATRIX B:";
+    cout<<"\nB_row: "<<b_row;
+    cout<<"\nB_col: "<<b_col;
+    cout<<"\n";
     vector_print(b);
-    cout<<"\nMatrix Pi:\n";
+
+    // Pi-Matrix to kattis
+    cout<<"\nMATRIX Pi:";
+    cout<<"\nPi_row: "<<pi_row;
+    cout<<"\nPi_col: "<<pi_col;
+    cout<<"\n";
     vector_print(pi);
 
-
-
+    cout<<"\n";
 return 0;
 }
 
