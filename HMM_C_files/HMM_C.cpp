@@ -2,8 +2,6 @@
 #include "misc_hmm3.hpp"
 #include "math.h"
 
-// Alpha Pass
-
 int main()
  {
     HMMmatrix A, B, Pi, Seq;
@@ -71,6 +69,7 @@ int main()
     vector< vector<double> > b = B.getHMMmatrix();
     vector< vector<double> > pi = Pi.getHMMmatrix();
     vector< vector<double> > seq = Seq.getHMMmatrix();
+
     int observpos;
 
     int num_states = a_row; // Number of states
@@ -85,7 +84,7 @@ int main()
 
 
 
-    int maxiter = 1; // Number of iterations
+    int maxiter = 500; // Number of iterations
     int flag = 0; // Variable to check the loop for iteration of learning
     int iter = 0; // Number of actual iteration
     double denom;
@@ -258,11 +257,11 @@ int main()
 
         logProb = -logProb;
 
-
         //--------------------------------------------------//
-                // Check Iterations //  (STEP 7)
+                 // Check Iterations //  (STEP 7)
         //-------------------------------------------------//
         iter++;
+        cout<<"\nLOGProb at "<<iter<<" : "<<logProb;
         if(iter<maxiter && logProb > oldlogProb)
         {
             oldlogProb = logProb;
@@ -273,33 +272,48 @@ int main()
     }
     while(flag != 1);
 
-    cout<<"\nAfter the learning algorithm";
+    cout<<"\nAfter the learning algorithm\n";
 
     cout<<"\nNumber of iterations: ";
-    cout<<iter;
+    cout<<iter<<"\n";
 
     // A-Matrix to kattis
     cout<<"\nMATRIX A:";
     cout<<"\nA_row: "<<a_row;
     cout<<"\nA_col: "<<a_col;
-    cout<<"\n";
+    cout<<"\n\n";
     vector_print(a);
+
+//    // Amount of change from the initial values
+//    cout<<"\nThe difference from the required:\n";
+//    vector_diff(a_req, a);
+//    cout<<"\n\n";
 
     // B-Matrix to kattis
     cout<<"\nMATRIX B:";
     cout<<"\nB_row: "<<b_row;
     cout<<"\nB_col: "<<b_col;
-    cout<<"\n";
+    cout<<"\n\n";
     vector_print(b);
+
+//    // Amount of change from the initial values
+//    cout<<"\nThe difference from the required:\n";
+//    vector_diff(b_req, b);
+//    cout<<"\n\n";
 
     // Pi-Matrix to kattis
     cout<<"\nMATRIX Pi:";
     cout<<"\nPi_row: "<<pi_row;
     cout<<"\nPi_col: "<<pi_col;
-    cout<<"\n";
+    cout<<"\n\n";
     vector_print(pi);
 
+//    // Amount of change from the initial values
+//    cout<<"\nThe difference from the required:\n";
+//    vector_diff(pi_req, pi);
+//    cout<<"\n\n";
+
     cout<<"\n";
-return 0;
+    return 0;
 }
 

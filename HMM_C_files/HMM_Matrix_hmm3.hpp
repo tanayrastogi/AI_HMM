@@ -21,7 +21,7 @@ void HMMmatrix::printHMMmatrix()
     for(vector<int>::size_type i = 0; i<mtrx.size(); i++)
         {
             for(vector<int>::size_type j = 0; j<mtrx[0].size(); j++)
-                cout<< mtrx[i][j]<< "\t";
+                cout<< mtrx[i][j]<< "\t\t";
             cout<<"\n";
         }
 }
