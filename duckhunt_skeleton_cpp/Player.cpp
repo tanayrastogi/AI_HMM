@@ -9,6 +9,28 @@ Player::Player()
 {
 }
 
+
+void Player::loadData(std::string filename)
+{
+    //std::istream &pStream;
+    //void load(std::istream &pStream);
+    //std::string lLoadFilename = "SouthEmissions.in";
+    string line;
+    ifstream myfile (filename);
+    if(myfile.is_open())
+    {
+        while(getline(myfile,line))
+        {
+            std::cerr << line << '\n';
+        }
+        myfile.close();
+    }
+    else std::cerr << "Unable to open file!";
+
+    return 0;
+}
+
+
 Action Player::shoot(const GameState &pState, const Deadline &pDue)
 {
     /*
